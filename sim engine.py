@@ -5,10 +5,10 @@ import sys
 active_ships = []
 queue = []
 ship_names = ["Inscrutible", "Majestic", "Unassailable"]
-given_names = ["Gary", "Carol", "Francis", "Francine", "Rory", "Susan"]
-surnames = ["Smith", "Carter", "Wang", "Meguid", "Takarada"]
+given_names = ["Gary", "Carol", "Francis", "Francine", "Rory", "Susan", "Lorne", "Kimberly"]
+surnames = ["Smith", "Carter", "Wang", "Meguid", "Takarada", "Singh", "Cano"]
 room_types = ["engineering", "bridge", "maintenance", "living quarters", "battery"]
-system_list = ["life support", "communications", "gravity"]
+system_list = ["life_support", "communications", "power", "weapons"]
 
 #ship classes
 class ship:
@@ -31,6 +31,8 @@ class ship:
 			print(c)
 
 	#generator functions
+
+	#room generators
 	def gen_rooms(self):
 		rooms = ["bridge", "engineering", "maintenance"]
 		lq = 0
@@ -60,13 +62,34 @@ class ship:
 	def battery(self, r):
 		return battery(r,[],[],100,10)
 
+
+	#system generators
+	def gen_systems(self):
+		for s in system_list:
+			x = getattr(self,s)(s)
+			self.systems.append(x)
+
+	def life_support(self, s):
+		return life_support(s, self, True, 100, None)
+
+	def communications(self, s):
+		return communications(s, self, True, 100, None)
+
+	def power(self, s):
+		return power(s, self, True, 100, None, 1000, 1000)
+
+	def weapons(self,s):
+		return weapons(s, self, True, 100, None)
+
+
+	#crew generator
 	def populate(self):
 		full = False
 		while not full:
 			x = len(self.crew)
 			if x < self.max_crew:
 				n = given_names[random.randint(0, len(given_names)-1)]+" "+surnames[random.randint(0, len(surnames)-1)]
-				c = crew_member(n,"swabby",10,100,None)
+				c = crew_member(n,"swabby",self,10,100,None)
 				self.crew.append(c)
 				a = random.randint(0,len(self.layout)-1)
 				self.layout[a].living.append(c)
@@ -74,10 +97,10 @@ class ship:
 			else:
 				full = True
 
-	def gen_ls(self):
-		ls = life_support(system_list[0],True,100)
-		self.systems.append(ls)
 
+	def sys_online(self):
+		for s in self.systems:
+			s.start()
 	
 	#update functions
 	def update(self):
@@ -88,20 +111,25 @@ class ship:
 
 
 #ship system classes
-class life_support:
-	def __init__(self, name, active, hp):
+class system:
+	def __init__(self, name, ship, active, hp, p):
 		self.name = name
+		self.ship = ship
 		self.active = active
 		self.hp = hp
+		self.p = p
 
 	def __repr__(self):
 		return self.name
 
+	def start(self):
+		pass
+
+	def status(self):
+		pass
+
 	def update(self):
-		if self.hp > 100:
-			self.hp = 100
-		for r in active_ships[0].layout:
-			r.oxygen = self.hp
+		pass
 
 	def degrade(self):
 		if self.active == True:
@@ -115,6 +143,36 @@ class life_support:
 			print(self.name+" is inactive.")
 
 
+class life_support(system):
+	def __init__(self, name, ship, active, hp, p):
+		system.__init__(self, name, ship, active, hp, p)
+
+	def update(self):
+		if self.hp > 100:
+			self.hp = 100
+		for r in self.ship.layout:
+			r.oxygen = self.hp		
+
+class communications(system):
+	def __init__(self, name, ship, active, hp, p):
+		system.__init__(self, name, ship, active, hp, p)
+
+class power(system):
+	def __init__(self, name, ship, active, hp, p, output, reserve):
+		system.__init__(self, name, ship, active, hp, p)
+		self.output = output
+		self.reserve = reserve
+
+	def start(self):
+		for s in self.ship.systems:
+			if s != self:
+				s.p = 100
+				self.reserve = self.reserve - s.p
+		print(str(self.reserve)+" power reserved.")
+
+class weapons(system):
+	def __init__(self, name, ship, active, hp, p):
+		system.__init__(self, name, ship, active, hp, p)
 
 #room classes
 class room:
@@ -162,12 +220,20 @@ class living_quarters(room):
 
 #people classes
 class crew_member:
-	def __init__(self, name, rank, vitals, oxygen, room):
+	def __init__(self, name, rank, ship, vitals, oxygen, room):
 		self.name = name
 		self.rank = rank
+		self.ship = ship
 		self.vitals = vitals
 		self.oxygen = oxygen
 		self.room = room
+
+	#update functions
+	def update(self):
+		self.move()
+		self.location()
+		self.status()
+		self.repair()
 
 	def status(self):
 		self.oxygen = self.room.oxygen
@@ -175,7 +241,7 @@ class crew_member:
 			self.vitals = 0
 			print(self.name+" has asphyxiated.")
 		if self.vitals == 0:
-			active_ships[0].crew.remove(self)
+			self.ship.crew.remove(self)
 			self.room.living.remove(self)
 			self.room.dead.append(self)
 
@@ -186,16 +252,16 @@ class crew_member:
 	def move(self):
 		selected = False
 		while not selected:
-			new_room = random.randint(0,len(active_ships[0].layout)-1)
-			if self.room != active_ships[0].layout[new_room]:
+			new_room = random.randint(0,len(self.ship.layout)-1)
+			if self.room != self.ship.layout[new_room]:
 				selected = True
-		self.room = active_ships[0].layout[new_room]
-		active_ships[0].layout[new_room].living.append(self)
+		self.room = self.ship.layout[new_room]
+		self.ship.layout[new_room].living.append(self)
 
 	def repair(self):
 		if self.room.name == "maintenance":
-			active_ships[0].systems[0].hp = active_ships[0].systems[0].hp + 5
-			print(self.name+" is repairing "+active_ships[0].systems[0].name)
+			self.ship.systems[0].hp = self.ship.systems[0].hp + 5
+			print(self.name+" is repairing "+self.ship.systems[0].name)
 
 	def __repr__(self):
 		return self.name
@@ -209,17 +275,9 @@ def generate_ship():
 	active_ships.append(s)
 	s.gen_rooms()
 	s.populate()
-	s.gen_ls()
+	s.gen_systems()
 	s.init_display()
-
-
-#update functions
-def crew_update():
-	for c in list(active_ships[0].crew):
-		c.move()
-		c.location()
-		c.status()
-		c.repair()
+	s.sys_online()
 
 
 
@@ -229,15 +287,16 @@ generate_ship()
 #game loop
 running = True
 while running:
-	crew_update()
-	print("")
 	for s in active_ships:
+		for c in s.crew:
+			c.update()
 		s.update()
+		print("")
 	print("")
 	i = input()
-	if i == "oxygen":
-		for r in active_ships[0].layout:
-			print(r.name+" "+str(r.oxygen))
+	if i == "sys report":
+		for s in active_ships[0].systems:
+			print(s.name+" "+str(s.hp))
 	elif i == "dead":
 		print(active_ships[0].crew)
 		for d in active_ships[0].layout:
