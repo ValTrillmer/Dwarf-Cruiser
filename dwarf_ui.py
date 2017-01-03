@@ -34,10 +34,11 @@ def ship_display():
 	t = make_text("ship zone")
 	ship_zone.blit(t, (centre_text(ship_zone,t),0))
 	ship_zone.blit(make_text(active_ships[0].name), (0,24))
+	ship_zone.blit(make_text("Power: "+str(active_ships[0].systems[2].reserve)+"/"+str(active_ships[0].systems[2].output)), (0,48))
 	h=0
 	for s in active_ships[0].layout:
 		room = make_text(s.name)
-		ship_zone.blit(room, (0,48+(basicfont.get_height()*h)))
+		ship_zone.blit(room, (0,72+(basicfont.get_height()*h)))
 		h=h+1
 
 def crew_display():
@@ -70,11 +71,24 @@ def system_display():
 		system_zone.blit(feed, (0,24+(basicfont.get_height()*h)))
 		h=h+1
 
+def oxy_display():
+	oxy_zone.fill((0,0,0))
+	t = make_text("Oxygen")
+	oxy_zone.blit(t, (centre_text(oxy_zone,t),0))
+	h=0
+	for r in active_ships[0].layout:
+		name = r.name
+		oxy = str(r.oxygen)
+		feed = make_text(name+" "+oxy)
+		oxy_zone.blit(feed, (0,24+(feed.get_height()*h)))
+		h=h+1
+
 
 
 ship_zone = make_surface(640,360)
-crew_zone = make_surface(640,720)
+crew_zone = make_surface(640,360)
 system_zone = make_surface(640,360)
+oxy_zone = make_surface(640,360)
 
 mainloop = True
 tick = 0
@@ -104,11 +118,13 @@ while mainloop:
 	ship_display()
 	crew_display()
 	system_display()
+	oxy_display()
 
 	#blitting background
 	screen.blit(ship_zone, (0,0))
 	screen.blit(crew_zone, (640,0))
 	screen.blit(system_zone, (0,360))
+	screen.blit(oxy_zone, (640,360))
 	pygame.display.flip()
 
 	tick=tick+1

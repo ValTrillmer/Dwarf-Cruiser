@@ -89,7 +89,7 @@ class ship:
 			x = len(self.crew)
 			if x < self.max_crew:
 				n = given_names[random.randint(0, len(given_names)-1)]+" "+surnames[random.randint(0, len(surnames)-1)]
-				c = crew_member(n,"swabby",self,10,100,None,None)
+				c = crew_member(n,"swabby",self,100,100,None,None)
 				self.crew.append(c)
 				a = random.randint(0,len(self.layout)-1)
 				self.layout[a].living.append(c)
@@ -104,9 +104,12 @@ class ship:
 	
 	#update functions
 	def update(self):
-		for r in self.systems:
-			r.degrade()
-		self.systems[0].update()
+		for s in self.systems:
+			s.degrade()
+			s.update()
+			if s.hp > 100:
+				s.hp = 100
+
 
 
 
@@ -148,10 +151,10 @@ class life_support(system):
 		system.__init__(self, name, ship, active, hp, p)
 
 	def update(self):
-		if self.hp > 100:
-			self.hp = 100
 		for r in self.ship.layout:
-			r.oxygen = self.hp		
+			r.oxygen = self.hp
+			if r.oxygen > 100:
+				r.oxygen = 100
 
 class communications(system):
 	def __init__(self, name, ship, active, hp, p):
@@ -232,7 +235,6 @@ class crew_member:
 	#update functions
 	def update(self, tick):
 		self.move(tick)
-		self.location()
 		self.status()
 		self.repair(tick)
 
@@ -246,9 +248,6 @@ class crew_member:
 			self.room.living.remove(self)
 			self.room.dead.append(self)
 
-
-	def location(self):
-		print(self.name+" is in the "+self.room.name)
 
 	def move(self, tick):
 		if tick%60 == 0:
@@ -265,7 +264,6 @@ class crew_member:
 			if self.room.name == "maintenance":
 				self.ship.systems[0].hp = self.ship.systems[0].hp + 5
 				self.action = "repairing "+self.room.name
-				print(self.name+" is repairing "+self.ship.systems[0].name)
 			else:
 				self.action = None
 
@@ -297,5 +295,3 @@ def update(tick):
 			c.update(tick)
 		if tick%30 == 0:
 			s.update()
-		print("")
-	print("")
