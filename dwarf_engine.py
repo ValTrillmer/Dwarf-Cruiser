@@ -10,6 +10,8 @@ surnames = ["Smith", "Carter", "Wang", "Meguid", "Takarada", "Singh", "Cano"]
 room_types = ["engineering", "bridge", "maintenance", "living quarters", "battery"]
 system_list = ["life_support", "communications", "power", "weapons"]
 
+ranks = {0 : "Captain", 1 : "Commander", 2 : "Lieutenant Commander", 3 : "Lieutenant", 4 : "Ensign"}
+
 #ship classes
 class ship:
 	def __init__(self, name, crew, max_crew, max_batteries, hull, engines, layout, systems):
@@ -25,10 +27,6 @@ class ship:
 	def __repr__(self):
 		return self.name
 
-	def init_display(self):
-		print(self.name+"\n"+str(self.layout))
-		for c in self.crew:
-			print(c)
 
 	#generator functions
 
@@ -57,7 +55,7 @@ class ship:
 		return maintenance(r,[],[],100)
 
 	def living_quarters(self, r):
-		return living_quarters(r,[],[],100)
+		return living_quarters(r,[],[],100,None)
 
 	def battery(self, r):
 		return battery(r,[],[],100,10)
@@ -85,17 +83,48 @@ class ship:
 	#crew generator
 	def populate(self):
 		full = False
+		lq = []
+		for r in self.layout:
+			if r.name == "living_quarters":
+				lq.append(r)
 		while not full:
 			x = len(self.crew)
 			if x < self.max_crew:
 				n = given_names[random.randint(0, len(given_names)-1)]+" "+surnames[random.randint(0, len(surnames)-1)]
-				c = crew_member(n,"swabby",self,100,100,None,None)
+				c = crew_member(n,"swabby",self,100,100,None,None,None)
 				self.crew.append(c)
-				a = random.randint(0,len(self.layout)-1)
-				self.layout[a].living.append(c)
-				c.room = self.layout[a]
 			else:
 				full = True
+		n=1
+		for i in range(0,len(lq)):
+			self.crew[i].quarters = lq[i]
+			self.crew[i].loc = lq[i]
+			lq[i].assigned = self.crew[i].name
+			lq[i].living.append(self.crew[i])
+			lq[i].name = lq[i].name+str(n)
+			n=n+1
+		self.assign_rank()
+
+	def assign_rank(self):
+		cap = 1
+		com = random.randint(0,1)
+		lc = random.randint(0,1)
+		ltnt = random.randint(0,1)
+		ensign = self.max_crew-(cap+com+lc+ltnt)
+		c = []
+		for x in range(0,cap):
+			c.append(0)
+		for x in range(0,com):
+			c.append(1)
+		for x in range(0,lc):
+			c.append(2)
+		for x in range(0,ltnt):
+			c.append(3)
+		for x in range(0,ensign):
+			c.append(4)
+		for i in range(0,len(c)):
+			self.crew[i].rank = c[i]
+
 
 
 	def sys_online(self):
@@ -137,11 +166,13 @@ class system:
 	def degrade(self):
 		if self.active == True:
 			self.hp = self.hp-1
-			if self.hp > 0:
-				print(self.name+" has taken damage.")
-			else:
-				print(self.name+" has been destroyed.")
+			if self.hp == 0:
 				self.active = False
+			elif self.hp < 0:
+				self.hp = 0
+				self.active = False
+			else:
+				pass
 		else:
 			print(self.name+" is inactive.")
 
@@ -171,7 +202,6 @@ class power(system):
 			if s != self:
 				s.p = 100
 				self.reserve = self.reserve - s.p
-		print(str(self.reserve)+" power reserved.")
 
 class weapons(system):
 	def __init__(self, name, ship, active, hp, p):
@@ -198,7 +228,6 @@ class battery(room):
 		self.dmg = dmg
 
 	def status(self):
-		room.status()
 		print(self.dmg)
 
 class bridge(room):
@@ -214,8 +243,12 @@ class engineering(room):
 		room.__init__(self, name, living, dead, oxygen)
 
 class living_quarters(room):
-	def __init__(self, name, living, dead, oxygen):
+	def __init__(self, name, living, dead, oxygen, assigned):
 		room.__init__(self, name, living, dead, oxygen)
+		self.assigned = None
+
+	def __repr__(self):
+		return self.assigned+"'s quarters"
 
 
 
@@ -223,13 +256,14 @@ class living_quarters(room):
 
 #people classes
 class crew_member:
-	def __init__(self, name, rank, ship, vitals, oxygen, room, action):
+	def __init__(self, name, rank, ship, vitals, oxygen, loc, quarters, action):
 		self.name = name
 		self.rank = rank
 		self.ship = ship
 		self.vitals = vitals
 		self.oxygen = oxygen
-		self.room = room
+		self.loc = loc
+		self.quarters = quarters
 		self.action = action
 
 	#update functions
@@ -239,36 +273,36 @@ class crew_member:
 		self.repair(tick)
 
 	def status(self):
-		self.oxygen = self.room.oxygen
+		self.oxygen = self.loc.oxygen
 		if self.oxygen == 0:
 			self.vitals = 0
 			print(self.name+" has asphyxiated.")
 		if self.vitals == 0:
 			self.ship.crew.remove(self)
-			self.room.living.remove(self)
-			self.room.dead.append(self)
-
+			self.loc.living.remove(self)
+			self.loc.dead.append(self)
+			
 
 	def move(self, tick):
 		if tick%60 == 0:
 			selected = False
 			while not selected:
 				new_room = random.randint(0,len(self.ship.layout)-1)
-				if self.room != self.ship.layout[new_room]:
+				if self.loc != self.ship.layout[new_room]:
 					selected = True
-			self.room = self.ship.layout[new_room]
+			self.loc = self.ship.layout[new_room]
 			self.ship.layout[new_room].living.append(self)
 
 	def repair(self, tick):
 		if tick%30 == 0:
-			if self.room.name == "maintenance":
+			if self.loc.name == "maintenance":
 				self.ship.systems[0].hp = self.ship.systems[0].hp + 5
-				self.action = "repairing "+self.room.name
+				self.action = "repairing "+self.loc.name
 			else:
 				self.action = None
 
 	def __repr__(self):
-		return self.name
+		return ranks[self.rank]+" "+self.name
 
 
 
@@ -280,7 +314,6 @@ def generate_ship():
 	s.gen_rooms()
 	s.populate()
 	s.gen_systems()
-	s.init_display()
 	s.sys_online()
 
 

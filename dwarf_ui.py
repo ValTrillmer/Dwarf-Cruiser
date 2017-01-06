@@ -37,7 +37,7 @@ def ship_display():
 	ship_zone.blit(make_text("Power: "+str(active_ships[0].systems[2].reserve)+"/"+str(active_ships[0].systems[2].output)), (0,48))
 	h=0
 	for s in active_ships[0].layout:
-		room = make_text(s.name)
+		room = make_text(s.__repr__())
 		ship_zone.blit(room, (0,72+(basicfont.get_height()*h)))
 		h=h+1
 
@@ -48,9 +48,9 @@ def crew_display():
 	h=0	
 	for c in active_ships[0].crew:
 		crew_d = make_surface(crew_zone.get_width(),basicfont.get_height()*2)
-		name = c.name
+		name = c.__repr__()
 		hp = str(c.vitals)
-		location = c.room.name
+		location = c.loc.__repr__()
 		feed = make_text(name+" "+hp+" "+location)
 		action = make_text("Action: "+str(c.action))
 		crew_d.blit(feed, (0,0))
