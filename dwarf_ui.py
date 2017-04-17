@@ -34,7 +34,7 @@ def ship_display():
 	t = make_text("ship zone")
 	ship_zone.blit(t, (centre_text(ship_zone,t),0))
 	ship_zone.blit(make_text(active_ships[0].name), (0,24))
-	ship_zone.blit(make_text("Power: "+str(active_ships[0].systems[2].reserve)+"/"+str(active_ships[0].systems[2].output)), (0,48))
+	ship_zone.blit(make_text("Power: "+str(active_ships[0].systems[3].reserve)+"/"+str(active_ships[0].systems[3].output)), (0,48))
 	h=0
 	for s in active_ships[0].layout:
 		room = make_text(s.__repr__())

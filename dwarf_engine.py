@@ -8,7 +8,7 @@ ship_names = ["Inscrutible", "Majestic", "Unassailable"]
 given_names = ["Gary", "Carol", "Francis", "Francine", "Rory", "Susan", "Lorne", "Kimberly"]
 surnames = ["Smith", "Carter", "Wang", "Meguid", "Takarada", "Singh", "Cano"]
 room_types = ["engineering", "bridge", "maintenance", "living quarters", "battery"]
-system_list = ["life_support", "communications", "power", "weapons"]
+system_list = ["life_support", "communications", "weapons", "power"]
 
 ranks = {0 : "Captain", 1 : "Commander", 2 : "Lieutenant Commander", 3 : "Lieutenant", 4 : "Ensign"}
 
@@ -203,6 +203,13 @@ class power(system):
 				s.p = 100
 				self.reserve = self.reserve - s.p
 
+	def update(self):
+		self.reserve=self.output
+		for s in self.ship.systems:
+			if s != self:
+				self.reserve = self.reserve-s.p
+
+
 class weapons(system):
 	def __init__(self, name, ship, active, hp, p):
 		system.__init__(self, name, ship, active, hp, p)
@@ -297,6 +304,8 @@ class crew_member:
 		if tick%30 == 0:
 			if self.loc.name == "maintenance":
 				self.ship.systems[0].hp = self.ship.systems[0].hp + 5
+				#REMEMBER TO ERASE THE FOLLOWING LINE LATER. THIS IS JUST A TEST
+				self.ship.systems[0].p = self.ship.systems[0].p +5
 				self.action = "repairing "+self.loc.name
 			else:
 				self.action = None
