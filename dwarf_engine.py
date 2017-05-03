@@ -12,6 +12,11 @@ system_list = ["life_support", "communications", "weapons", "power"]
 
 ranks = {0 : "Captain", 1 : "Commander", 2 : "Lieutenant Commander", 3 : "Lieutenant", 4 : "Ensign"}
 
+date = 22294200.00
+
+def date_calc(date):
+	return date / 8760.00
+
 #ship classes
 class ship:
 	def __init__(self, name, crew, max_crew, max_batteries, hull, engines, layout, systems):
@@ -35,6 +40,8 @@ class ship:
 		rooms = ["bridge", "engineering", "maintenance"]
 		lq = 0
 		for lq in range(self.max_crew):
+
+
 			rooms.append("living_quarters")
 			lq = lq+1
 		b = 0
