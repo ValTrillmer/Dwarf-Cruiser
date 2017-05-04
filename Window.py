@@ -46,7 +46,7 @@ class Window:
 
 	#draws the base bordered screen
 	#blit arguments are (source, destination, area, special flags)
-	def draw_screen(self, width):
+	def draw_border(self, width):
 		self.surface.fill(self.fill_colour)
 		t = self.make_text(self.title)
 		x = 5
@@ -57,8 +57,16 @@ class Window:
 		pygame.draw.line(self.surface, self.text_colour, (z,x), (z,y), width)
 		pygame.draw.line(self.surface, self.text_colour, (x,y), (z,y), width)
 		self.surface.blit(t, (self.horizontal_centre(t),0))
+		return x
+
+	#ideally, this will create button objects, but for now just draws a rectangle.
+	def make_button(self,x):
+		button = pygame.Rect(x*2,x*2,780/4,50)
+		pygame.draw.rect(self.surface,self.text_colour,button,0)
 
 	#the 5 in th render function is arbitrary. Could be changed to be an attribute of the class.
 	def render(self, screen):
-		self.draw_screen(5)
+		self.draw_border(5)
+		if self.title == "Tablet":
+			self.make_button(5)
 		screen.blit(self.surface, (self.x,self.y))

@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Window import Window
+from Mode import Main_Mode
 
 #import engine (whatever that engine may be)
 
@@ -24,10 +25,10 @@ playtime = 0.0
 
 
 screen = pygame.display.set_mode((1280, 720)) #set screen size
-font = pygame.font.SysFont(None, 18) #arguments are (name, size, bold=True/False, italic=True/False)
 
-x = Window(1280,720,"Ship Zone",0,0,0,True,black,white,font)
-x.load()
+mode = Main_Mode()
+
+mode.load_windows()
 
 mainloop = True
 tick = 0
@@ -42,8 +43,13 @@ while mainloop:
 		elif event.type == pygame.KEYDOWN: #should be all caps
 			if event.key == pygame.K_ESCAPE:
 				mainloop = False #user pressed ESC
+			if event.key == pygame.K_m:
+				if mode.tablet.visible == True:
+					mode.tablet.visible = False
+				else:
+					mode.tablet.visible = True
 	
-	x.render(screen)
+	mode.compile_screen(screen)
 
 	#update display
 	pygame.display.flip()
