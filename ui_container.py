@@ -1,23 +1,21 @@
+import pygame
+
 #needs to be written to allow for inheritence, the nest attribute needs to change to a child attribute
 class Container:
-	def __init__(self, name, x, y, z, nest, width, height, border, visible):
+	def __init__(self, name, x, y, z, offset, width, height, border, visible):
 		self.name = name
-		self.x = x
-		self.y = y
+		self.x = x+offset[0]
+		self.y = y+offset[1]
 		self.z = z
-		self.nest = nest
-		self.width = width
-		self.height = height
+		self.offset = offset
+		self.width = width*offset[2]
+		self.height = height*offset[3]
 		self.border = border
 		self.visible = visible
+		self.children = []
 
-		if self.nest != None:
-			self.x = x+nest.x
-			self.y = y+nest.y
-
-		if self.nest == None:
-			self.width = 1280
-			self.height = 720
-		else:
-			self.width = self.nest.width * self.width
-			self.height = self.nest.height * self.height
+	def render(self, display, colour):
+		if self.visible == True:
+			pygame.draw.rect(display, colour, (self.x,self.y,self.width,self.height),self.border)
+			for c in self.children:
+				c.render(display, colour)

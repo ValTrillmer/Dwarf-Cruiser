@@ -10,7 +10,7 @@ from ui_container import Container
 	#then blit the background to the screen. This is just an example function. Be sure to assemble surfaces before
 	#displaying them.
 
-class Window:
+class Display:
 	def __init__(self, width, height, title, x, y, z, colour1, colour2, font):
 		self.width = width
 		self.height = height
@@ -45,14 +45,19 @@ class Window:
 		return text
 
 	#creates the container object
-	def make_container(self,name,x,y,z,nest,width,height,border,visible):
-		container = Container(name,x,y,z,nest,width,height,border,visible)
+	def make_container(self,name,x,y,z,width,height,border,visible,parent):
+		if parent != None:
+			offset = (parent.x,parent.y,parent.width,parent.height)
+		else:
+			offset = (0,0,1280,720)
+		container = Container(name,x,y,z,offset,width,height,border,visible)
+		if parent != None:
+			parent.children.append(container)
 		return container
 
 	# runs through the container list and draws every container whose visibility is set to True
-	def render(self, screen, container_list):
+	def render(self, screen, main):
 		self.surface.fill(self.colour1)
-		for c in container_list:
-			if c.visible == True:
-				pygame.draw.rect(self.surface, self.colour2, (c.x,c.y,c.width,c.height),c.border)
+		if main.visible == True:
+			main.render(self.surface, self.colour2)
 		screen.blit(self.surface, (self.x,self.y))

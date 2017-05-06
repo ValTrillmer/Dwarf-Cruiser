@@ -1,6 +1,6 @@
 import pygame
 import sys
-from Window import Window
+from Window import Display
 from Mode import Main_Mode
 
 #import engine (whatever that engine may be)
