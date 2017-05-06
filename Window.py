@@ -1,5 +1,6 @@
 #contains the Window class, which holds drawing functions.
 import pygame
+from ui_container import Container
 
 #The following functions create and modify surfaces.
 
@@ -10,23 +11,22 @@ import pygame
 	#displaying them.
 
 class Window:
-	def __init__(self, width, height, title, x, y, z, visible, fill_colour, text_colour, font):
+	def __init__(self, width, height, title, x, y, z, colour1, colour2, font):
 		self.width = width
 		self.height = height
 		self.title = title
 		self.x = x
 		self.y = y
 		self.z = z
-		self.visible = visible
-		self.fill_colour = fill_colour
-		self.text_colour = text_colour
+		self.colour1 = colour1
+		self.colour2 = colour2
 		self.font = font
 		self.surface = None
 
 	#creates a surface to draw on and stores it under self.surface
 	def load(self):
 		self.surface = pygame.Surface((self.width, self.height)) #create empty pygame surface
-		self.surface.fill(self.fill_colour) #fills background with fill_colour colour
+		self.surface.fill(self.colour1) #fills background with colour1 colour
 		self.surface = self.surface.convert() #convert surface to make blitting faster. Just a thing you do.
 
 	#simple formula for horizontally centering surfaces on other surfaces. Looks at the surface width and calculates accordingly.
@@ -40,33 +40,19 @@ class Window:
 	#makes a text object. I'd like to flesh this out in the future for nicer text.
 	#render creates an image of the text and then blits it.
 	#render arguments are (text, antialiasing, text colour, background colour).
-	def make_text(self, string):
-		text = self.font.render(string, True, self.text_colour, self.fill_colour)
+	def make_text(self, string, colour1, colour2):
+		text = self.font.render(string, True, colour1, colour2)
 		return text
 
-	#draws the base bordered screen
-	#blit arguments are (source, destination, area, special flags)
-	def draw_border(self, width):
-		self.surface.fill(self.fill_colour)
-		t = self.make_text(self.title)
-		x = 5
-		y = self.surface.get_height() - x
-		z = self.surface.get_width() - x
-		pygame.draw.line(self.surface, self.text_colour, (x,x), (x,y), width)
-		pygame.draw.line(self.surface, self.text_colour, (x,x), (z,x), width)
-		pygame.draw.line(self.surface, self.text_colour, (z,x), (z,y), width)
-		pygame.draw.line(self.surface, self.text_colour, (x,y), (z,y), width)
-		self.surface.blit(t, (self.horizontal_centre(t),0))
-		return x
+	#creates the container object
+	def make_container(self,name,x,y,z,nest,width,height,border,visible):
+		container = Container(name,x,y,z,nest,width,height,border,visible)
+		return container
 
-	#ideally, this will create button objects, but for now just draws a rectangle.
-	def make_button(self,x):
-		button = pygame.Rect(x*2,x*2,780/4,50)
-		pygame.draw.rect(self.surface,self.text_colour,button,0)
-
-	#the 5 in th render function is arbitrary. Could be changed to be an attribute of the class.
-	def render(self, screen):
-		self.draw_border(5)
-		if self.title == "Tablet":
-			self.make_button(5)
+	# runs through the container list and draws every container whose visibility is set to True
+	def render(self, screen, container_list):
+		self.surface.fill(self.colour1)
+		for c in container_list:
+			if c.visible == True:
+				pygame.draw.rect(self.surface, self.colour2, (c.x,c.y,c.width,c.height),c.border)
 		screen.blit(self.surface, (self.x,self.y))

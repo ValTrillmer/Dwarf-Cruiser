@@ -7,9 +7,6 @@ from Mode import Main_Mode
 
 #This file holds the main game loop
 
-#colour data
-white = (255,255,255)
-black = (0,0,0)
 
 #initializes pygame
 pygame.init()
@@ -28,26 +25,18 @@ screen = pygame.display.set_mode((1280, 720)) #set screen size
 
 mode = Main_Mode()
 
-mode.load_windows()
+mode.load_window()
 
 mainloop = True
 tick = 0
 while mainloop:
+
 	#amount of time elapse since last tick
 	ms = clock.tick(fps)
 
 	#event handler
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			mainloop = False #pygame window closed by user
-		elif event.type == pygame.KEYDOWN: #should be all caps
-			if event.key == pygame.K_ESCAPE:
-				mainloop = False #user pressed ESC
-			if event.key == pygame.K_m:
-				if mode.tablet.visible == True:
-					mode.tablet.visible = False
-				else:
-					mode.tablet.visible = True
+	mainloop = mode.handle_event()
+
 	
 	mode.compile_screen(screen)
 
