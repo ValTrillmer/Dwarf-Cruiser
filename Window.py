@@ -1,6 +1,6 @@
 #contains the Window class, which holds drawing functions.
 import pygame
-from ui_container import Container
+from ui_container import Container, Button
 
 #The following functions create and modify surfaces.
 
@@ -11,22 +11,20 @@ from ui_container import Container
 	#displaying them.
 
 class Display:
-	def __init__(self, width, height, title, x, y, z, colour1, colour2, font):
+	def __init__(self, width, height, title, x, y, z, font):
 		self.width = width
 		self.height = height
 		self.title = title
 		self.x = x
 		self.y = y
 		self.z = z
-		self.colour1 = colour1
-		self.colour2 = colour2
 		self.font = font
 		self.surface = None
 
 	#creates a surface to draw on and stores it under self.surface
 	def load(self):
 		self.surface = pygame.Surface((self.width, self.height)) #create empty pygame surface
-		self.surface.fill(self.colour1) #fills background with colour1 colour
+		self.surface.fill((0,0,0)) #fills background with colour1 colour
 		self.surface = self.surface.convert() #convert surface to make blitting faster. Just a thing you do.
 
 	#simple formula for horizontally centering surfaces on other surfaces. Looks at the surface width and calculates accordingly.
@@ -45,19 +43,32 @@ class Display:
 		return text
 
 	#creates the container object
-	def make_container(self,name,x,y,z,width,height,border,visible,parent):
+	def make_container(self,name,x,y,z,width,height,colour,border,visible,active,parent):
 		if parent != None:
 			offset = (parent.x,parent.y,parent.width,parent.height)
 		else:
 			offset = (0,0,1280,720)
-		container = Container(name,x,y,z,offset,width,height,border,visible)
+		container = Container(name,x,y,z,offset,width,height,colour,border,visible,active)
+		if parent != None:
+			parent.children.append(container)
+		return container
+
+	#function works just like the make container function, but it makes a button (a subclass of the
+	#container Container class) instead. For the moment it works the same, but will alow for special
+	#button animations and etc.
+	def make_button(self,name,x,y,z,width,height,colour,border,visible,active,parent):
+		if parent != None:
+			offset = (parent.x,parent.y,parent.width,parent.height)
+		else:
+			offset = (0,0,1280,720)
+		container = Button(name,x,y,z,offset,width,height,colour,border,visible,active)
 		if parent != None:
 			parent.children.append(container)
 		return container
 
 	# runs through the container list and draws every container whose visibility is set to True
 	def render(self, screen, main):
-		self.surface.fill(self.colour1)
+		self.surface.fill((0,0,0))
 		if main.visible == True:
-			main.render(self.surface, self.colour2)
+			main.render(self.surface)
 		screen.blit(self.surface, (self.x,self.y))

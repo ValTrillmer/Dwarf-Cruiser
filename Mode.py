@@ -11,19 +11,42 @@ black = (0,0,0)
 class Main_Mode:
 	def __init__(self):
 		self.font = pygame.font.SysFont(None, 18) #arguments are (name, size, bold=True/False, italic=True/False)
-		self.window = Display(1280,720,"Ship Zone",0,0,0,black,white,self.font)
+		self.window = Display(1280,720,"Ship Zone",0,0,0,self.font)
 		self.container = []
+		self.tablet_menu = []
+		self.active_container = None
 
 
 	def load_window(self):
 		self.window.load()
-		main = self.window.make_container("Main",0,0,0,1.0,1.0,5,True,None)
+		main = self.window.make_container("Main",0,0,0,1.0,1.0,white,5,True,True,None)
 		self.container.append(main)
-		tablet = self.window.make_container("Tablet",50,50,0,0.4,0.4,5,False,main)
-		self.container.append(tablet)
-		sub = self.window.make_container("Sub",50,50,0,0.4,0.4,5,True,tablet)
-		self.container.append(sub)
+		self.active_container = main
 
+	#sets the active container. Active containers can be acted upon by keypresses, allow for different animations
+	#or display different information in other containers
+	def set_active_container(self, container):
+		self.active_container.active = False
+		self.active_container = container
+		self.active_container.active = True
+
+		
+	#This function creates and organizes the UI elements for the tablet screen.
+	def create_tablet(self):
+		tablet = self.window.make_container("Tablet",75,75,0,0.8,0.8,white,5,False,False,self.container[0])
+		self.container.append(tablet)
+		tab_menu = self.window.make_container("Tab_menu",0,0,0,1.0,0.15,black,0,False,False,tablet)
+		self.container.append(tab_menu)
+		tab_screen = self.window.make_container("Tab_screen",0,tab_menu.height,0,1.0,0.85,black,0,False,False,tablet)
+		self.container.append(tab_screen)
+		t = 0
+		x = 0
+		while x < 4:
+			tab = self.window.make_button("Tab "+str(x+1),t,0,0,0.25,1.0,white,0,False,False,tab_menu)
+			self.container.append(tab)
+			t = t+tab_menu.width/4
+			x=x+1
+		self.tablet_menu = self.container[4:8]
 
 
 	def compile_screen(self, screen):
@@ -40,18 +63,40 @@ class Main_Mode:
 				if event.key == pygame.K_m:
 					for w in self.container:
 						if w.name == "Tablet" and w.visible == False:
-							w.visible = True
+							w.set_visible()
+							self.set_active_container(self.tablet_menu[0])
 						elif w.name == "Tablet" and w.visible == True:
-							w.visible = False
+							w.set_visible()
+							self.set_active_container(self.container[0])
 						else:
 							pass
 					return True
-				elif event.key == pygame.K_n:
-					for w in self.container:
-						if w.name == "Sub" and w.visible == False:
-							w.visible = True
-						elif w.name == "Sub" and w.visible == True:
-							w.visible = False
+				
+				if event.key == pygame.K_LEFT:
+					if self.active_container.name == "Main":
+						pass
+					else:
+						#OK, SO HOW THIS WORKS. It iterates over self.tablet_menu, looking for an active object, once it 
+						#finds one, it also returns the index in the list. Then it sets a new active to the left of the object
+						for i, b in enumerate(self.tablet_menu):
+							if b.active == True:
+								a = i
+						if a > 0:
+							self.set_active_container(self.tablet_menu[a-1])
 						else:
-							pass
+							self.set_active_container(self.tablet_menu[len(self.tablet_menu)-1])
+
+				if event.key == pygame.K_RIGHT:
+					if self.active_container.name == "Main":
+						pass
+					else:
+						#SEE ABOVE
+						for i, b in enumerate(self.tablet_menu):
+							if b.active == True:
+								a = i
+						if a < len(self.tablet_menu)-1:
+							self.set_active_container(self.tablet_menu[a+1])
+						else:
+							self.set_active_container(self.tablet_menu[0])
+
 		return True

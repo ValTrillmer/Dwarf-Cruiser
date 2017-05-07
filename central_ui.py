@@ -26,6 +26,7 @@ screen = pygame.display.set_mode((1280, 720)) #set screen size
 mode = Main_Mode()
 
 mode.load_window()
+mode.create_tablet()
 
 mainloop = True
 tick = 0
