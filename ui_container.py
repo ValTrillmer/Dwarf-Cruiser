@@ -42,6 +42,8 @@ class Container:
 		else:
 			self.active = True
 
+
+
 #for main game screen
 class Main(Container):
 	def __init__(self, x, y, z, offset, width, height, visible, active, name):
@@ -49,9 +51,10 @@ class Main(Container):
 		self.name = name
 
 
+
 #for buttons, will probably have a lot more functionality
 class Button(Container):
-	def __init__(self, x, y, z, offset, width, height, visible, active,string):
+	def __init__(self, x, y, z, offset, width, height, visible, active, string):
 		Container.__init__(self, x, y, z, offset, width, height, visible, active)
 		self.font = F.font
 		self.border = 0
@@ -70,8 +73,10 @@ class Button(Container):
 		else:
 			pass
 
-	def create_text_box():
-		x = Text_Box()
+	def create_text_box(self):
+		offset = (self.x,self.y,self.width,self.height)
+		x = Text_Box(0,0,0,offset,0,0,False,False,self.string)
+		self.children.append(x)
 
 	def update_active(self):
 		if self.active == True:
@@ -82,4 +87,25 @@ class Button(Container):
 			self.border = 5
 
 
-#class Text_Box(Container):
+
+#new class for creating text boxes. The button container calls it, but 
+#other functions may as well
+class Text_Box(Container):
+	def __init__(self, x, y, z, offset, width, height, visible, active, string):
+		Container.__init__(self, x, y, z, offset, width, height, visible, active)
+		self.font = F.font
+		self.border = 0
+		self.string = string
+		self.text_colour = F.black
+		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
+		self.width = self.text.get_width()
+		self.height = self.text.get_height()
+
+	#makes a text object. I'd like to flesh this out in the future for nicer text.
+	#render creates an image of the text and then blits it onto a surface or rect.
+	#render arguments are (text, antialiasing, text colour, background colour).
+	def render(self, display):
+		if self.visible == True:
+			display.blit(self.text, (self.x,self.y))
+			for c in self.children:
+				c.render(display)

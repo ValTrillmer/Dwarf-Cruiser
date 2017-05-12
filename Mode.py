@@ -43,6 +43,7 @@ class Main_Mode:
 		x = 0
 		while x < 4:
 			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu)
+			tab.create_text_box()
 			self.container.append(tab)
 			t = t+tab_menu.width/4
 			x=x+1
