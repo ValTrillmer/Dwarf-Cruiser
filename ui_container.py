@@ -59,7 +59,7 @@ class Button(Container):
 		self.font = F.font
 		self.border = 0
 		self.string = string #this string is for the text box
-		#self.create_text_box()
+		self.create_text_box()
 
 	def render(self, display):
 		if self.visible == True and self.active == False:

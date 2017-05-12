@@ -43,7 +43,6 @@ class Main_Mode:
 		x = 0
 		while x < 4:
 			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu)
-			tab.create_text_box()
 			self.container.append(tab)
 			t = t+tab_menu.width/4
 			x=x+1
@@ -73,9 +72,10 @@ class Main_Mode:
 					return True
 				
 				if event.key == pygame.K_LEFT:
-					if self.active_container.name == "Main":
-						pass
-					else:
+					try:
+						if self.active_container.name == "Main":
+							pass
+					except AttributeError:
 						#OK, SO HOW THIS WORKS. It iterates over self.tablet_menu, looking for an active object, once it 
 						#finds one, it also returns the index in the list. Then it sets a new active to the left of the object
 						for i, b in enumerate(self.tablet_menu):
