@@ -2,6 +2,7 @@ import pygame
 import sys
 from Window import Display
 from Mode import Main_Mode
+import Formatting_Data as F
 
 #import engine (whatever that engine may be)
 
@@ -10,6 +11,8 @@ from Mode import Main_Mode
 
 #initializes pygame
 pygame.init()
+F.set_font()
+
 
 #create clock object
 clock = pygame.time.Clock()

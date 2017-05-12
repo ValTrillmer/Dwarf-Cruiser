@@ -1,20 +1,20 @@
 import pygame
+import Formatting_Data as F
 
 #needs to be written to allow for inheritence, the nest attribute needs to change to a child attribute
 class Container:
-	def __init__(self, name, x, y, z, offset, width, height, colour, border, visible, active):
-		self.name = name
+	def __init__(self, x, y, z, offset, width, height, visible, active):
 		self.x = x+offset[0]
 		self.y = y+offset[1]
 		self.z = z
 		self.offset = offset
 		self.width = width*offset[2]
 		self.height = height*offset[3]
-		self.colour = colour
-		self.border = border
 		self.visible = visible
 		self.active = active
 		self.children = []
+		self.border = 5
+		self.colour = F.white
 
 	def __repr__(self):
 		return self.name
@@ -25,7 +25,7 @@ class Container:
 			for c in self.children:
 				c.render(display)
 
-
+	#sets visibility for children. If not visible, its children won't be either
 	def set_visible(self):
 		if self.visible == False:
 			self.visible = True
@@ -36,9 +36,27 @@ class Container:
 			for c in self.children:
 				c.set_visible()
 
+	def update_active(self):
+		if self.active == True:
+			self.active = False
+		else:
+			self.active = True
+
+#for main game screen
+class Main(Container):
+	def __init__(self, x, y, z, offset, width, height, visible, active, name):
+		Container.__init__(self, x, y, z, offset, width, height, visible, active)
+		self.name = name
+
+
+#for buttons, will probably have a lot more functionality
 class Button(Container):
-	def __init__(self, name, x, y, z, offset, width, height, colour, border, visible, active):
-		Container.__init__(self, name, x, y, z, offset, width, height, colour, border, visible, active)
+	def __init__(self, x, y, z, offset, width, height, visible, active,string):
+		Container.__init__(self, x, y, z, offset, width, height, visible, active)
+		self.font = F.font
+		self.border = 0
+		self.string = string #this string is for the text box
+		#self.create_text_box()
 
 	def render(self, display):
 		if self.visible == True and self.active == False:
@@ -46,9 +64,22 @@ class Button(Container):
 			for c in self.children:
 				c.render(display)
 		elif self.visible == True and self.active == True:
-			pygame.draw.rect(display, self.colour, (self.x,self.y,self.width,self.height),5)
+			pygame.draw.rect(display, self.colour, (self.x,self.y,self.width,self.height),self.border)
 			for c in self.children:
 				c.render(display)
 		else:
 			pass
 
+	def create_text_box():
+		x = Text_Box()
+
+	def update_active(self):
+		if self.active == True:
+			self.active = False
+			self.border = 0
+		else:
+			self.active = True
+			self.border = 5
+
+
+#class Text_Box(Container):

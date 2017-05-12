@@ -1,6 +1,6 @@
 #contains the Window class, which holds drawing functions.
 import pygame
-from ui_container import Container, Button
+from ui_container import Container, Main, Button
 
 #The following functions create and modify surfaces.
 
@@ -43,12 +43,23 @@ class Display:
 		return text
 
 	#creates the container object
-	def make_container(self,name,x,y,z,width,height,colour,border,visible,active,parent):
+	def make_container(self,x,y,z,width,height,visible,active,parent):
 		if parent != None:
 			offset = (parent.x,parent.y,parent.width,parent.height)
 		else:
 			offset = (0,0,1280,720)
-		container = Container(name,x,y,z,offset,width,height,colour,border,visible,active)
+		container = Container(x,y,z,offset,width,height,visible,active)
+		if parent != None:
+			parent.children.append(container)
+		return container
+
+	#for making main game container
+	def make_main(self,x,y,z,width,height,visible,active,parent,name):
+		if parent != None:
+			offset = (parent.x,parent.y,parent.width,parent.height)
+		else:
+			offset = (0,0,1280,720)
+		container = Main(x,y,z,offset,width,height,visible,active,name)
 		if parent != None:
 			parent.children.append(container)
 		return container
@@ -56,12 +67,12 @@ class Display:
 	#function works just like the make container function, but it makes a button (a subclass of the
 	#container Container class) instead. For the moment it works the same, but will alow for special
 	#button animations and etc.
-	def make_button(self,name,x,y,z,width,height,colour,border,visible,active,parent):
+	def make_button(self,x,y,z,width,height,visible,active,parent):
 		if parent != None:
 			offset = (parent.x,parent.y,parent.width,parent.height)
 		else:
 			offset = (0,0,1280,720)
-		container = Button(name,x,y,z,offset,width,height,colour,border,visible,active)
+		container = Button(x,y,z,offset,width,height,visible,active,"123")
 		if parent != None:
 			parent.children.append(container)
 		return container

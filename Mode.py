@@ -19,30 +19,30 @@ class Main_Mode:
 
 	def load_window(self):
 		self.window.load()
-		main = self.window.make_container("Main",0,0,0,1.0,1.0,white,5,True,True,None)
+		main = self.window.make_main(0,0,0,1.0,1.0,True,True,None,"Main")
 		self.container.append(main)
 		self.active_container = main
 
 	#sets the active container. Active containers can be acted upon by keypresses, allow for different animations
 	#or display different information in other containers
 	def set_active_container(self, container):
-		self.active_container.active = False
+		self.active_container.update_active()
 		self.active_container = container
-		self.active_container.active = True
+		self.active_container.update_active()
 
 		
 	#This function creates and organizes the UI elements for the tablet screen.
 	def create_tablet(self):
-		tablet = self.window.make_container("Tablet",75,75,0,0.8,0.8,white,5,False,False,self.container[0])
+		tablet = self.window.make_container(75,75,0,0.8,0.8,False,False,self.container[0]) #container is main window
 		self.container.append(tablet)
-		tab_menu = self.window.make_container("Tab_menu",0,0,0,1.0,0.15,black,0,False,False,tablet)
+		tab_menu = self.window.make_container(0,0,0,1.0,0.15,False,False,tablet)
 		self.container.append(tab_menu)
-		tab_screen = self.window.make_container("Tab_screen",0,tab_menu.height,0,1.0,0.85,black,0,False,False,tablet)
+		tab_screen = self.window.make_container(0,tab_menu.height,0,1.0,0.85,False,False,tablet)
 		self.container.append(tab_screen)
 		t = 0
 		x = 0
 		while x < 4:
-			tab = self.window.make_button("Tab "+str(x+1),t,0,0,0.25,1.0,white,0,False,False,tab_menu)
+			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu)
 			self.container.append(tab)
 			t = t+tab_menu.width/4
 			x=x+1
@@ -61,15 +61,14 @@ class Main_Mode:
 				if event.key == pygame.K_ESCAPE:
 					return False #user pressed ESC
 				if event.key == pygame.K_m:
-					for w in self.container:
-						if w.name == "Tablet" and w.visible == False:
-							w.set_visible()
-							self.set_active_container(self.tablet_menu[0])
-						elif w.name == "Tablet" and w.visible == True:
-							w.set_visible()
-							self.set_active_container(self.container[0])
-						else:
-							pass
+					if self.container[1].visible == False:
+						self.container[1].set_visible()
+						self.set_active_container(self.tablet_menu[0])
+					elif self.container.visible == True:
+						self.container[1].set_visible()
+						self.set_active_container(self.container[0])
+					else:
+						pass
 					return True
 				
 				if event.key == pygame.K_LEFT:
@@ -87,9 +86,10 @@ class Main_Mode:
 							self.set_active_container(self.tablet_menu[len(self.tablet_menu)-1])
 
 				if event.key == pygame.K_RIGHT:
-					if self.active_container.name == "Main":
-						pass
-					else:
+					try:
+						if self.active_container.name == "Main":
+							pass
+					except AttributeError:
 						#SEE ABOVE
 						for i, b in enumerate(self.tablet_menu):
 							if b.active == True:
