@@ -1,10 +1,8 @@
 #perhaps this will be a mode. Modes determine the information needed to create and organize windows
 import pygame
 from Window import Display
+import Formatting_Data as F
 
-#colour data
-white = (255,255,255)
-black = (0,0,0)
 
 
 
@@ -41,11 +39,13 @@ class Main_Mode:
 		self.container.append(tab_screen)
 		t = 0
 		x = 0
+		string = 0
 		while x < 4:
-			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu)
+			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu,F.tablet_buttons[string])
 			self.container.append(tab)
 			t = t+tab_menu.width/4
 			x=x+1
+			string=string+1
 		self.tablet_menu = self.container[4:8]
 
 
@@ -64,7 +64,7 @@ class Main_Mode:
 					if self.container[1].visible == False:
 						self.container[1].set_visible()
 						self.set_active_container(self.tablet_menu[0])
-					elif self.container.visible == True:
+					elif self.container[1].visible == True:
 						self.container[1].set_visible()
 						self.set_active_container(self.container[0])
 					else:

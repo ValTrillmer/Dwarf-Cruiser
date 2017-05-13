@@ -42,6 +42,16 @@ class Container:
 		else:
 			self.active = True
 
+	#centres text horizontally using offset data
+	def centre_horizontal(self):
+		x = (self.offset[2]-self.width)/2
+		self.x = x+self.offset[0]
+
+	#centres text vertically using offset data
+	def centre_vertical(self):
+		y = (self.offset[3]-self.height)/2
+		self.y = y+self.offset[1]
+
 
 
 #for main game screen
@@ -69,7 +79,10 @@ class Button(Container):
 		elif self.visible == True and self.active == True:
 			pygame.draw.rect(display, self.colour, (self.x,self.y,self.width,self.height),self.border)
 			for c in self.children:
+				c.text = c.font.render(c.string, True, F.white, F.black)
 				c.render(display)
+				c.text = c.font.render(c.string, True, c.text_colour, c.colour)
+
 		else:
 			pass
 
@@ -106,6 +119,8 @@ class Text_Box(Container):
 	#render arguments are (text, antialiasing, text colour, background colour).
 	def render(self, display):
 		if self.visible == True:
+			self.centre_horizontal()
+			self.centre_vertical()
 			display.blit(self.text, (self.x,self.y))
 			for c in self.children:
 				c.render(display)

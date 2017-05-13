@@ -65,12 +65,12 @@ class Display:
 	#function works just like the make container function, but it makes a button (a subclass of the
 	#container Container class) instead. For the moment it works the same, but will alow for special
 	#button animations and etc.
-	def make_button(self,x,y,z,width,height,visible,active,parent):
+	def make_button(self,x,y,z,width,height,visible,active,parent,string):
 		if parent != None:
 			offset = (parent.x,parent.y,parent.width,parent.height)
 		else:
 			offset = (0,0,1280,720)
-		container = Button(x,y,z,offset,width,height,visible,active,"123")
+		container = Button(x,y,z,offset,width,height,visible,active,string)
 		if parent != None:
 			parent.children.append(container)
 		return container
