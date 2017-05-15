@@ -29,7 +29,11 @@ screen = pygame.display.set_mode((1280, 720)) #set screen size
 mode = Main_Mode()
 
 mode.load_window()
+mode.load_character()
+mode.create_character_display()
 mode.create_tablet()
+
+
 
 mainloop = True
 tick = 0
@@ -38,11 +42,15 @@ while mainloop:
 	#amount of time elapse since last tick
 	ms = clock.tick(fps)
 
+	#game logic
+	mode.run_engine()
+
 	#event handler
 	mainloop = mode.handle_event()
 
 	
 	mode.compile_screen(screen)
+	#mode.draw_heart(screen)
 
 	#update display
 	pygame.display.flip()

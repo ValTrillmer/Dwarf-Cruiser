@@ -2,6 +2,7 @@
 import pygame
 from Window import Display
 import Formatting_Data as F
+from Character import Entity, Player_Character
 
 
 
@@ -13,6 +14,9 @@ class Main_Mode:
 		self.container = []
 		self.tablet_menu = []
 		self.active_container = None
+		self.health_bar = None
+		self.character = None
+		self.game_logic_test = None
 
 
 	def load_window(self):
@@ -27,6 +31,27 @@ class Main_Mode:
 		self.active_container.update_active()
 		self.active_container = container
 		self.active_container.update_active()
+
+	#function for loading character
+	def load_character(self):
+		#arguments are x,y,z,width,height,visible,active,parent
+		x = self.window.make_container(0,0,0,25,25,True,False,self.container[0])
+		x.centre_horizontal()
+		x.centre_vertical()
+		self.character = x
+		#the following attribute is not permanent
+		self.game_logic_test = Player_Character("Bosley McNutt", [100,100])
+
+		#NOTE: DOES NOT CURRENTLY GO INTO THE CONTAINER LIST
+
+	
+#	def draw_heart(self, screen):
+#		pygame.draw.line(screen, (255,192,203), (640,560), (540,460), 10)
+#		pygame.draw.line(screen, (255,192,203), (640,560), (740,460), 10)
+#		pygame.draw.line(screen, (255,192,203), (540,460), (590,410), 10)
+#		pygame.draw.line(screen, (255,192,203), (740,460), (690,410), 10)
+#		pygame.draw.line(screen, (255,192,203), (590,410), (640,460), 10)
+#		pygame.draw.line(screen, (255,192,203), (690,410), (640,460), 10)
 
 		
 	#This function creates and organizes the UI elements for the tablet screen.
@@ -48,9 +73,34 @@ class Main_Mode:
 			string=string+1
 		self.tablet_menu = self.container[4:8]
 
+	def create_character_display(self):
+		c = self.window.make_container(40,10,0,1,1,True,False,self.container[0])
+		c.border = 0
+		c.colour = F.black
+		t = self.window.make_text_box(0,0,0,0,0,True,False,c,self.game_logic_test.name)
+		t.update_colour(F.black, F.white)
+		x = self.window.make_container(0,40,0,200,25,True,False,c)
+		y = self.window.make_container(0,0,0,self.game_logic_test.hp[0]*2,25,True,False,x)
+		y.border = 0
+		self.health_bar = [y,x]
+
 
 	def compile_screen(self, screen):
 		self.window.render(screen, self.container[0])
+
+
+
+	#the following functions run the game engine
+	def run_engine(self):
+		self.update_health_bar()
+
+
+	def update_health_bar(self):
+		self.health_bar[0].width = self.game_logic_test.hp_bar_test()*2
+		if self.game_logic_test.hp[0] == 0:
+			self.game_logic_test.hp[0] = 100
+
+
 
 	#hoo boy this one needs some work
 	def handle_event(self):
@@ -74,7 +124,7 @@ class Main_Mode:
 				if event.key == pygame.K_LEFT:
 					try:
 						if self.active_container.name == "Main":
-							pass
+							self.character.x = self.character.x-25
 					except AttributeError:
 						#OK, SO HOW THIS WORKS. It iterates over self.tablet_menu, looking for an active object, once it 
 						#finds one, it also returns the index in the list. Then it sets a new active to the left of the object
@@ -89,7 +139,7 @@ class Main_Mode:
 				if event.key == pygame.K_RIGHT:
 					try:
 						if self.active_container.name == "Main":
-							pass
+							self.character.x = self.character.x+25
 					except AttributeError:
 						#SEE ABOVE
 						for i, b in enumerate(self.tablet_menu):
@@ -99,5 +149,17 @@ class Main_Mode:
 							self.set_active_container(self.tablet_menu[a+1])
 						else:
 							self.set_active_container(self.tablet_menu[0])
+				if event.key == pygame.K_UP:
+					try:
+						if self.active_container.name == "Main":
+							self.character.y = self.character.y-25
+					except AttributeError:
+						pass
+				if event.key == pygame.K_DOWN:
+					try:
+						if self.active_container.name == "Main":
+							self.character.y = self.character.y+25
+					except AttributeError:
+						pass
 
 		return True

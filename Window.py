@@ -75,6 +75,16 @@ class Display:
 			parent.children.append(container)
 		return container
 
+	def make_text_box(self,x,y,z,width,height,visible,active,parent,string):
+		if parent != None:
+			offset = (parent.x,parent.y,parent.width,parent.height)
+		else:
+			offset = (0,0,1280,720)
+		container = Text_Box(x,y,z,offset,width,height,visible,active,string)
+		if parent != None:
+			parent.children.append(container)
+		return container
+
 	# runs through the container list and draws every container whose visibility is set to True
 	def render(self, screen, main):
 		self.surface.fill((0,0,0))

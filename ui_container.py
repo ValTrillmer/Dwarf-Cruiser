@@ -8,8 +8,14 @@ class Container:
 		self.y = y+offset[1]
 		self.z = z
 		self.offset = offset
-		self.width = width*offset[2]
-		self.height = height*offset[3]
+		if isinstance(width, float) == True:
+			self.width = width*offset[2]
+		else:
+			self.width = width
+		if isinstance(height, float) == True:
+			self.height = height*offset[3]
+		else:
+			self.height = height
 		self.visible = visible
 		self.active = active
 		self.children = []
@@ -17,7 +23,7 @@ class Container:
 		self.colour = F.white
 
 	def __repr__(self):
-		return self.name
+		pass
 
 	def render(self, display):
 		if self.visible == True:
@@ -89,6 +95,8 @@ class Button(Container):
 	def create_text_box(self):
 		offset = (self.x,self.y,self.width,self.height)
 		x = Text_Box(0,0,0,offset,0,0,False,False,self.string)
+		x.centre_horizontal()
+		x.centre_vertical()
 		self.children.append(x)
 
 	def update_active(self):
@@ -119,8 +127,11 @@ class Text_Box(Container):
 	#render arguments are (text, antialiasing, text colour, background colour).
 	def render(self, display):
 		if self.visible == True:
-			self.centre_horizontal()
-			self.centre_vertical()
 			display.blit(self.text, (self.x,self.y))
 			for c in self.children:
 				c.render(display)
+
+	def update_colour(self, c1, c2):
+		self.colour = c1
+		self.text_colour = c2
+		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
