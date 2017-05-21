@@ -130,3 +130,7 @@ class Text_Box(Container):
 		self.colour = c1
 		self.text_colour = c2
 		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
+
+	def update_text(self, string):
+		self.string = string
+		self.text = self.font.render(self.string, True, self.text_colour, self.colour)

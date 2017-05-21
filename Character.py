@@ -10,6 +10,6 @@ class Player_Character:
 	def __init__(self, name, hp):
 		Entity.__init__(self, name, hp)
 
-	def hp_bar_test(self):
-		self.hp[0] = self.hp[0]-1
+	def change_hp(self, x):
+		self.hp[0] = self.hp[0]-x
 		return self.hp[0]

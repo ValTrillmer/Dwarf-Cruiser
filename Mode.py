@@ -3,6 +3,7 @@ import pygame
 from Window import Display
 import Formatting_Data as F
 from Character import Entity, Player_Character
+from Ship import Ship
 
 
 
@@ -13,18 +14,18 @@ class Main_Mode:
 		self.window = Display(1280,720,"Ship Zone",0,0,0,self.font)
 		self.main = None
 		self.tablet = None
-		self.container = []
 		self.tablet_menu = []
+		self.tablet_screen = None
 		self.active_container = None
 		self.health_bar = None
 		self.character = None
-		self.game_logic_test = None
+		self.player = None
+		self.ship = None
 
 
 	def load_window(self):
 		self.window.load()
 		self.main = self.window.make_main(0,0,0,1.0,1.0,True,True,None,"Main")
-		self.container.append(self.main)
 		self.active_container = self.main
 
 	#sets the active container. Active containers can be acted upon by keypresses, allow for different animations
@@ -43,10 +44,12 @@ class Main_Mode:
 		x.centre_vertical()
 		self.character = x
 		#the following attribute is not permanent
-		self.game_logic_test = Player_Character("Bosley McNutt", [100,100])
+		self.player = Player_Character("Bosley McNutt", [100,100])
 
-		#NOTE: DOES NOT CURRENTLY GO INTO THE CONTAINER LIST
 
+	#function for loading ship
+	def load_ship(self):
+		self.ship = Ship()
 	
 #	def draw_heart(self, screen):
 #		pygame.draw.line(screen, (255,192,203), (640,560), (540,460), 10)
@@ -60,30 +63,29 @@ class Main_Mode:
 	#This function creates and organizes the UI elements for the tablet screen.
 	def create_tablet(self):
 		self.tablet = self.window.make_container(75,75,0,0.8,0.8,False,False,self.main) #container is main window
-		self.container.append(self.tablet)
 		tab_menu = self.window.make_container(0,0,0,1.0,0.15,False,False,self.tablet)
-		self.container.append(tab_menu)
-		tab_screen = self.window.make_container(0,tab_menu.height,0,1.0,0.85,False,False,self.tablet)
-		self.container.append(tab_screen)
+		self.tablet_screen = self.window.make_container(0,tab_menu.height,0,1.0,0.85,False,False,self.tablet)
 		t = 0
 		x = 0
 		string = 0
 		while x < 4:
 			tab = self.window.make_button(t,0,0,0.25,1.0,False,False,tab_menu,F.tablet_buttons[string])
-			self.container.append(tab)
 			t = t+tab_menu.width/4
 			x=x+1
 			string=string+1
-		self.tablet_menu = self.container[4:8]
+			self.tablet_menu.append(tab)
+		text_box = self.window.make_text_box(10,10,0,1.0,1.0,False,False,self.tablet_screen,None)
+		text_box.update_colour(F.black, F.white)
+
 
 	def create_character_display(self):
 		c = self.window.make_container(40,10,0,1,1,True,False,self.main)
 		c.border = 0
 		c.colour = F.black
-		t = self.window.make_text_box(0,0,0,0,0,True,False,c,self.game_logic_test.name)
+		t = self.window.make_text_box(0,0,0,0,0,True,False,c,self.player.name)
 		t.update_colour(F.black, F.white)
 		x = self.window.make_container(0,40,0,200,25,True,False,c)
-		y = self.window.make_container(0,0,0,self.game_logic_test.hp[0]*2,25,True,False,x)
+		y = self.window.make_container(0,0,0,self.player.hp[0]*2,25,True,False,x)
 		y.border = 0
 		self.health_bar = [y,x]
 
@@ -93,15 +95,23 @@ class Main_Mode:
 
 
 
-	#the following functions run the game engine
+	#the following functions run the game engine or update screen
 	def run_engine(self):
 		self.update_health_bar()
 
 
 	def update_health_bar(self):
-		self.health_bar[0].width = self.game_logic_test.hp_bar_test()*2
-		if self.game_logic_test.hp[0] == 0:
-			self.game_logic_test.hp[0] = 100
+		self.health_bar[0].width = self.player.change_hp(0)*2
+		if self.player.hp[0] == 0:
+			self.player.hp[0] = 100
+
+	def update_tablet_screen(self):
+		if self.active_container == self.tablet_menu[0]:
+			self.tablet_screen.children[0].update_text(self.player.name)
+		elif self.active_container == self.tablet_menu[3]:
+			self.tablet_screen.children[0].update_text(self.ship.name)
+		else:
+			self.tablet_screen.children[0].update_text(None)
 
 
 
@@ -124,6 +134,7 @@ class Main_Mode:
 					if event.key == pygame.K_m:
 						self.tablet.set_visible()
 						self.set_active_container(self.tablet_menu[0])
+						self.update_tablet_screen()
 				elif self.active_container != self.main:
 					if event.key == pygame.K_LEFT:
 						for i, b in enumerate(self.tablet_menu):
@@ -133,6 +144,7 @@ class Main_Mode:
 							self.set_active_container(self.tablet_menu[a-1])
 						else:
 							self.set_active_container(self.tablet_menu[len(self.tablet_menu)-1])
+						self.update_tablet_screen()
 					if event.key == pygame.K_RIGHT:
 						for i, b in enumerate(self.tablet_menu):
 							if b.active == True:
@@ -141,6 +153,7 @@ class Main_Mode:
 							self.set_active_container(self.tablet_menu[a+1])
 						else:
 							self.set_active_container(self.tablet_menu[0])
+						self.update_tablet_screen()
 					if event.key == pygame.K_m:
 						self.tablet.set_visible()
 						self.set_active_container(self.main)

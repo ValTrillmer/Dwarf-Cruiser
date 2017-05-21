@@ -29,6 +29,7 @@ screen = pygame.display.set_mode((1280, 720)) #set screen size
 mode = Main_Mode()
 
 mode.load_window()
+mode.load_ship()
 mode.load_character()
 mode.create_character_display()
 mode.create_tablet()
