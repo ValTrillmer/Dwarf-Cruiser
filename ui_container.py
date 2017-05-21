@@ -33,20 +33,12 @@ class Container:
 
 	#sets visibility for children. If not visible, its children won't be either
 	def set_visible(self):
-		if self.visible == False:
-			self.visible = True
-			for c in self.children:
-				c.set_visible()
-		else:
-			self.visible = False
-			for c in self.children:
-				c.set_visible()
+		self.visible = not self.visible
+		for c in self.children:
+			c.set_visible()
 
 	def update_active(self):
-		if self.active == True:
-			self.active = False
-		else:
-			self.active = True
+		self.active = not self.active
 
 	#centres text horizontally using offset data
 	def centre_horizontal(self):
@@ -85,9 +77,7 @@ class Button(Container):
 		elif self.visible == True and self.active == True:
 			pygame.draw.rect(display, self.colour, (self.x,self.y,self.width,self.height),self.border)
 			for c in self.children:
-				c.text = c.font.render(c.string, True, F.white, F.black)
 				c.render(display)
-				c.text = c.font.render(c.string, True, c.text_colour, c.colour)
 
 		else:
 			pass
@@ -99,13 +89,18 @@ class Button(Container):
 		x.centre_vertical()
 		self.children.append(x)
 
+	#set the active parameter and any rules that may result from the change.
 	def update_active(self):
 		if self.active == True:
 			self.active = False
 			self.border = 0
+			c = self.children[0]
+			c.text = c.font.render(c.string, True, c.text_colour, c.colour)
 		else:
 			self.active = True
 			self.border = 5
+			c = self.children[0]
+			c.text = c.font.render(c.string, True, F.white, F.black)
 
 
 
