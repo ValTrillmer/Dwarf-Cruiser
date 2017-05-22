@@ -107,11 +107,12 @@ class Main_Mode:
 
 	def update_tablet_screen(self):
 		if self.active_container == self.tablet_menu[0]:
-			self.tablet_screen.children[0].update_text(self.player.name)
+			self.tablet_screen.children[0].string = self.player.name
 		elif self.active_container == self.tablet_menu[3]:
-			self.tablet_screen.children[0].update_text(self.ship.name)
+			self.tablet_screen.children[0].string = self.ship.name
 		else:
-			self.tablet_screen.children[0].update_text(None)
+			self.tablet_screen.children[0].string = None
+		self.tablet_screen.children[0].set_text()
 
 
 
