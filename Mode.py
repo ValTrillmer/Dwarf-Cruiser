@@ -112,7 +112,7 @@ class Main_Mode:
 			self.tablet_screen.children[0].string = self.ship.name
 		else:
 			self.tablet_screen.children[0].string = None
-		self.tablet_screen.children[0].set_text()
+		self.tablet_screen.children[0].update_text()
 
 
 

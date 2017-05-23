@@ -112,10 +112,12 @@ class Text_Box(Container):
 		self.font = F.font
 		self.border = 0
 		self.string = string
+		self.lines = []
 		self.text_colour = F.black
 		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
 		self.width = self.text.get_width()
 		self.height = self.text.get_height()
+		self.break_text()
 
 	#makes a text object. I'd like to flesh this out in the future for nicer text.
 	#render creates an image of the text and then blits it onto a surface or rect.
@@ -131,5 +133,26 @@ class Text_Box(Container):
 		self.text_colour = c2
 		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
 
-	def set_text(self):
+	def update_text(self):
 		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
+		self.break_text()
+
+
+	def break_text(self):
+		if self.string == None:
+			return
+		self.lines = []
+		words = self.string.split(None)
+		m = self.offset[2]
+		space = " "
+		space_length  = self.font.size(space)[0]
+		l = ""
+		for s in words:
+			if self.font.size(l)[0]+space_length+self.font.size(s)[0] < m:
+				l = l+space+s
+				if words.index(s) == len(words)-1:
+					self.lines.append(l)
+			else:
+				self.lines.append(l)
+				l = s
+		print(self.lines)
