@@ -27,19 +27,6 @@ class Display:
 		self.surface.fill((0,0,0)) #fills background with colour1 colour
 		self.surface = self.surface.convert() #convert surface to make blitting faster. Just a thing you do.
 
-
-	def make_text(self, string, colour1, colour2):
-		text = self.font.render(string, True, colour1, colour2)
-		return text
-
-			#simple formula for horizontally centering surfaces on other surfaces. Looks at the surface width and calculates accordingly.
-	def horizontal_centre(self, nest):
-		return (self.surface.get_width()-nest.get_width())/2
-
-	#formula for vertically centering one surface onto another.
-	def vertical_centre(self, nest):
-		return (self.surface.get_height()-nest.get_height())/2
-
 	#creates the container object
 	def make_container(self,x,y,z,width,height,visible,active,parent):
 		if parent != None:

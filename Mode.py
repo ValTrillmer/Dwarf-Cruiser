@@ -79,10 +79,10 @@ class Main_Mode:
 
 
 	def create_character_display(self):
-		c = self.window.make_container(40,10,0,1,1,True,False,self.main)
+		c = self.window.make_container(40,10,0,250,250,True,False,self.main)
 		c.border = 0
 		c.colour = F.black
-		t = self.window.make_text_box(0,0,0,0,0,True,False,c,self.player.name)
+		t = self.window.make_text_box(0,0,0,1.0,1.0,True,False,c,self.player.name)
 		t.update_colour(F.black, F.white)
 		x = self.window.make_container(0,40,0,200,25,True,False,c)
 		y = self.window.make_container(0,0,0,self.player.hp[0]*2,25,True,False,x)
@@ -107,12 +107,11 @@ class Main_Mode:
 
 	def update_tablet_screen(self):
 		if self.active_container == self.tablet_menu[0]:
-			self.tablet_screen.children[0].string = self.player.name
+			self.tablet_screen.children[0].update_text(self.player.name)
 		elif self.active_container == self.tablet_menu[3]:
-			self.tablet_screen.children[0].string = self.ship.name
+			self.tablet_screen.children[0].update_text(self.ship.name)
 		else:
-			self.tablet_screen.children[0].string = None
-		self.tablet_screen.children[0].update_text()
+			self.tablet_screen.children[0].update_text(None)
 
 
 

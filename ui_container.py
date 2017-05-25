@@ -84,9 +84,9 @@ class Button(Container):
 
 	def create_text_box(self):
 		offset = (self.x,self.y,self.width,self.height)
-		x = Text_Box(0,0,0,offset,0,0,False,False,self.string)
-		x.centre_horizontal()
-		x.centre_vertical()
+		x = Text_Box(0,0,0,offset,1.0,1.0,False,False,self.string)
+		x.horizontal_justify = True
+		x.vertical_justify = True
 		self.children.append(x)
 
 	#set the active parameter and any rules that may result from the change.
@@ -95,12 +95,12 @@ class Button(Container):
 			self.active = False
 			self.border = 0
 			c = self.children[0]
-			c.text = c.font.render(c.string, True, c.text_colour, c.colour)
+			c.update_colour(F.white, F.black)
 		else:
 			self.active = True
 			self.border = 5
 			c = self.children[0]
-			c.text = c.font.render(c.string, True, F.white, F.black)
+			c.update_colour(F.black, F.white)
 
 
 
@@ -114,34 +114,46 @@ class Text_Box(Container):
 		self.string = string
 		self.lines = []
 		self.text_colour = F.black
-		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
-		self.width = self.text.get_width()
-		self.height = self.text.get_height()
+		self.text = []
 		self.break_text()
+		self.render_text()
+		self.line_height = self.font.size("dq")[1]
+		self.horizontal_justify = False
+		self.vertical_justify = False
 
 	#makes a text object. I'd like to flesh this out in the future for nicer text.
 	#render creates an image of the text and then blits it onto a surface or rect.
 	#render arguments are (text, antialiasing, text colour, background colour).
 	def render(self, display):
 		if self.visible == True:
-			display.blit(self.text, (self.x,self.y))
+			for t in self.text:
+				if self.horizontal_justify == True:
+					x = self.justify_horizontal_centre(t)
+				else:
+					x = self.x
+				if self.vertical_justify == True:
+					y = self.justify_vertical_centre() + (self.text.index(t)*self.line_height)
+				else:
+					y = self.y + (self.text.index(t)*self.line_height)
+				display.blit(t, (x, y))
 			for c in self.children:
 				c.render(display)
 
 	def update_colour(self, c1, c2):
 		self.colour = c1
 		self.text_colour = c2
-		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
+		self.render_text()
 
-	def update_text(self):
-		self.text = self.font.render(self.string, True, self.text_colour, self.colour)
+	def update_text(self, string):
+		self.string = string
 		self.break_text()
+		self.render_text()
 
 
 	def break_text(self):
+		self.lines = []
 		if self.string == None:
 			return
-		self.lines = []
 		words = self.string.split(None)
 		m = self.offset[2]
 		space = " "
@@ -149,10 +161,32 @@ class Text_Box(Container):
 		l = ""
 		for s in words:
 			if self.font.size(l)[0]+space_length+self.font.size(s)[0] < m:
-				l = l+space+s
+				if l == "":
+					l = s
+				else:
+					l = l+space+s
 				if words.index(s) == len(words)-1:
 					self.lines.append(l)
 			else:
 				self.lines.append(l)
 				l = s
+				if words.index(s) == len(words)-1:
+					self.lines.append(l) 
 		print(self.lines)
+
+	def render_text(self):
+		self.text = []
+		if not self.lines:
+			x = self.font.render(None, True, self.text_colour, self.colour)
+			self.text.append(x)
+		for t in self.lines:
+			x = self.font.render(t, True, self.text_colour, self.colour)
+			self.text.append(x)
+
+	def justify_horizontal_centre(self, t):
+		return ((self.width-t.get_width())/2)+self.offset[0]
+
+	#vertical justification will be difficult. As it stands, this function should
+	#only begin the text at the middle.
+	def justify_vertical_centre(self):
+		return ((self.height-(len(self.text))*self.line_height)/2)+self.offset[1]
