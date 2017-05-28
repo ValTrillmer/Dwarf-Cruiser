@@ -131,10 +131,12 @@ class Text_Box(Container):
 					x = self.justify_horizontal_centre(t)
 				else:
 					x = self.x
+				
 				if self.vertical_justify == True:
 					y = self.justify_vertical_centre() + (self.text.index(t)*self.line_height)
 				else:
 					y = self.y + (self.text.index(t)*self.line_height)
+				
 				display.blit(t, (x, y))
 			for c in self.children:
 				c.render(display)

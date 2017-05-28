@@ -4,6 +4,7 @@ from Window import Display
 import Formatting_Data as F
 from Character import Entity, Player_Character
 from Ship import Ship
+from Room import Room
 
 
 
@@ -21,6 +22,7 @@ class Main_Mode:
 		self.character = None
 		self.player = None
 		self.ship = None
+		self.room = None
 
 
 	def load_window(self):
@@ -50,6 +52,9 @@ class Main_Mode:
 	#function for loading ship
 	def load_ship(self):
 		self.ship = Ship()
+
+	def load_room(self):
+		self.room = Room(10,10)
 	
 #	def draw_heart(self, screen):
 #		pygame.draw.line(screen, (255,192,203), (640,560), (540,460), 10)

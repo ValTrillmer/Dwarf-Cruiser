@@ -31,6 +31,7 @@ mode = Main_Mode()
 mode.load_window()
 mode.load_ship()
 mode.load_character()
+mode.load_room()
 mode.create_character_display()
 mode.create_tablet()
 
